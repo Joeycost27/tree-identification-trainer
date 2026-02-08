@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌳 Tree Species Identification Trainer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-dark: #1a3a2e;
+            --forest-med: #2d5a4a;
+            --sage: #6b8e7f;
+            --moss: #8fbc8f;
+            --cream: #faf8f3;
+            --bark: #5d4e37;
+            --leaf-green: #4a7c59;
+            --autumn: #c86b3c;
+            --gold: #d4af37;
+            --error: #b94e48;
+            --success: #5a8f69;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, #e8e4da 100%);
+            color: var(--forest-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--forest-dark), var(--forest-med));
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(26, 58, 46, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="60" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="50" cy="80" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="30" r="1" fill="rgba(255,255,255,0.09)"/></svg>') repeat;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--cream);
+            margin-bottom: 10px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: var(--moss);
+            font-weight: 400;
+            position: relative;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--forest-med);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, button {
+            padding: 12px 16px;
+            border: 2px solid var(--sage);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: white;
+        }
+
+        select:hover, select:focus {
+            border-color: var(--forest-med);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(107, 142, 127, 0.1);
+        }
+
+        button {
+            background: var(--forest-med);
+            color: white;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 2px 8px rgba(45, 90, 74, 0.2);
+        }
+
+        button:hover {
+            background: var(--forest-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 90, 74, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--forest-dark);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--sage);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .question-card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .question-number {
+            font-size: 0.9em;
+            color: var(--sage);
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .observations {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .observation {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f6f1 0%, #faf8f3 100%);
+            border-radius: 8px;
+            border-left: 4px solid var(--leaf-green);
+            transition: all 0.3s ease;
+        }
+
+        .observation:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .observation-icon {
+            font-size: 1.4em;
+            flex-shrink: 0;
+        }
+
+        .observation-content {
+            flex: 1;
+        }
+
+        .observation-label {
+            font-weight: 600;
+            color: var(--forest-med);
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
+        .observation-text {
+            color: var(--forest-dark);
+            line-height: 1.5;
+        }
+
+        .answer-section {
+            margin-top: 25px;
+        }
+
+        .prompt {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.3em;
+            color: var(--forest-dark);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1em;
+            border: 2px solid var(--sage);
+            border-radius: 8px;
+            font-family: 'Work Sans', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--forest-med);
+            box-shadow: 0 0 0 4px rgba(107, 142, 127, 0.15);
+        }
+
+        .hint {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--bark);
+            font-style: italic;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 15px;
+            padding: 16px;
+            font-size: 1.1em;
+        }
+
+        .result-card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--cream);
+        }
+
+        .result-status {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .result-status.correct {
+            color: var(--success);
+        }
+
+        .result-status.partial {
+            color: var(--autumn);
+        }
+
+        .result-status.incorrect {
+            color: var(--error);
+        }
+
+        .result-score {
+            font-size: 2.5em;
+            font-weight: 700;
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .result-score.correct {
+            color: var(--success);
+        }
+
+        .result-score.partial {
+            color: var(--autumn);
+        }
+
+        .result-score.incorrect {
+            color: var(--error);
+        }
+
+        .answer-comparison {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .answer-row {
+            padding: 15px;
+            border-radius: 8px;
+            background: var(--cream);
+        }
+
+        .answer-label {
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--sage);
+            margin-bottom: 5px;
+        }
+
+        .answer-value {
+            font-size: 1.2em;
+            color: var(--forest-dark);
+            font-family: 'Crimson Pro', serif;
+            font-style: italic;
+        }
+
+        .learning-section {
+            margin-top: 30px;
+        }
+
+        .learning-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5em;
+            color: var(--forest-dark);
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .learning-block {
+            background: linear-gradient(135deg, #f8f6f1 0%, #faf8f3 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--leaf-green);
+        }
+
+        .learning-block h4 {
+            color: var(--forest-med);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .learning-block p {
+            line-height: 1.7;
+            color: var(--forest-dark);
+        }
+
+        .differentiators {
+            background: linear-gradient(135deg, #e8f4ea 0%, #f0f8f2 100%);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--moss);
+            margin: 15px 0;
+        }
+
+        .differentiators h4 {
+            color: var(--forest-med);
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .diff-item {
+            margin-bottom: 12px;
+            line-height: 1.7;
+        }
+
+        .diff-species {
+            font-weight: 700;
+            color: var(--forest-dark);
+            text-transform: uppercase;
+        }
+
+        .diff-unique {
+            background: linear-gradient(135deg, #fff9e6 0%, #fffbef 100%);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--gold);
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .next-btn {
+            width: 100%;
+            margin-top: 20px;
+            background: var(--leaf-green);
+        }
+
+        .next-btn:hover {
+            background: var(--forest-dark);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--sage);
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 2px solid var(--error);
+            color: var(--error);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 5px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: var(--sage);
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: var(--forest-med);
+            color: white;
+            box-shadow: 0 2px 8px rgba(45, 90, 74, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-wrap: wrap;
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--cream);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--leaf-green), var(--moss));
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌳 Tree Species Identification Trainer</h1>
+            <p class="subtitle">Professional Tree Inspection Certification Preparation</p>
+        </header>
+
+        <div id="app">
+            <div class="loading">
+                <p>🌱 Loading tree database...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tree Trainer Application
+        class TreeTrainer {
+            constructor() {
+                this.trees = [];
+                this.currentTree = null;
+                this.currentQuestion = 0;
+                this.stats = {
+                    totalQuestions: 0,
+                    totalScore: 0,
+                    perfectAnswers: 0,
+                    streak: 0,
+                    bestStreak: 0
+                };
+                this.mode = 'species'; // 'species' or 'variety'
+                this.filters = {
+                    season: 'all',
+                    group: 'all',
+                    lifeStage: 'all'
+                };
+                this.loadStats();
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadTreeData();
+                    this.renderControls();
+                    this.startNewQuestion();
+                } catch (error) {
+                    this.showError('Failed to load tree data: ' + error.message);
+                }
+            }
+
+            async loadTreeData() {
+                const response = await fetch('tsv/trees_data.tsv');
+                const tsvText = await response.text();
+                this.parseTSV(tsvText);
+            }
+
+            parseTSV(tsvText) {
+                const lines = tsvText.split('\n').filter(line => line.trim());
+                const headers = lines[0].split('\t');
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split('\t');
+                    if (values[1] === 'YES') { // Check active column
+                        const tree = {};
+                        headers.forEach((header, index) => {
+                            tree[header] = values[index] || '';
+                        });
+                        this.trees.push(tree);
+                    }
+                }
+            }
+
+            getFilteredTrees() {
+                return this.trees.filter(tree => {
+                    if (this.filters.group !== 'all' && tree.speciesGroup !== this.filters.group) {
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            selectRandomTree() {
+                const filtered = this.getFilteredTrees();
+                if (filtered.length === 0) {
+                    throw new Error('No trees match the current filters');
+                }
+                const randomIndex = Math.floor(Math.random() * filtered.length);
+                return filtered[randomIndex];
+            }
+
+            getObservations(tree) {
+                const observations = [];
+                const season = this.filters.season === 'all' ? 
+                    (Math.random() > 0.5 ? 'winter' : 'summer') : 
+                    this.filters.season;
+
+                if (season === 'winter' || this.filters.season === 'all') {
+                    if (tree.winterBark) observations.push({
+                        icon: '❄️',
+                        label: 'Winter Bark',
+                        text: tree.winterBark
+                    });
+                    if (tree.winterBuds) observations.push({
+                        icon: '🌱',
+                        label: 'Winter Buds',
+                        text: tree.winterBuds
+                    });
+                    if (tree.winterForm) observations.push({
+                        icon: '🌿',
+                        label: 'Winter Form',
+                        text: tree.winterForm
+                    });
+                    if (tree.winterTwigs) observations.push({
+                        icon: '🪵',
+                        label: 'Winter Twigs',
+                        text: tree.winterTwigs
+                    });
+                }
+
+                if (season === 'summer' || this.filters.season === 'all') {
+                    if (tree.summerLeaf) observations.push({
+                        icon: '🍃',
+                        label: 'Summer Leaf',
+                        text: tree.summerLeaf
+                    });
+                    if (tree.summerFlower) observations.push({
+                        icon: '🌸',
+                        label: 'Summer Flower',
+                        text: tree.summerFlower
+                    });
+                    if (tree.summerFruit) observations.push({
+                        icon: '🍇',
+                        label: 'Summer Fruit',
+                        text: tree.summerFruit
+                    });
+                    if (tree.summerForm) observations.push({
+                        icon: '🌳',
+                        label: 'Summer Form',
+                        text: tree.summerForm
+                    });
+                }
+
+                // Add life stage observations
+                const lifeStage = this.filters.lifeStage;
+                if (lifeStage === 'juvenile' && tree.juvenileFeatures) {
+                    observations.push({
+                        icon: '🌱',
+                        label: 'Juvenile Features',
+                        text: tree.juvenileFeatures
+                    });
+                } else if (lifeStage === 'mature' && tree.matureFeatures) {
+                    observations.push({
+                        icon: '🌲',
+                        label: 'Mature Features',
+                        text: tree.matureFeatures
+                    });
+                } else if (lifeStage === 'veteran' && tree.veteranFeatures) {
+                    observations.push({
+                        icon: '🌳',
+                        label: 'Veteran Features',
+                        text: tree.veteranFeatures
+                    });
+                }
+
+                return observations;
+            }
+
+            startNewQuestion() {
+                this.currentTree = this.selectRandomTree();
+                this.currentQuestion++;
+                this.render();
+            }
+
+            checkAnswer(userAnswer) {
+                const correct = this.currentTree;
+                const correctAnswer = this.mode === 'species' ? 
+                    correct.latinName : 
+                    (correct.varietyName ? `${correct.latinName} '${correct.varietyName}'` : correct.latinName);
+
+                const normalized = (str) => str.toLowerCase().trim().replace(/\s+/g, ' ');
+                const userNorm = normalized(userAnswer);
+                const correctNorm = normalized(correctAnswer);
+
+                let score = 0;
+                let status = 'incorrect';
+                let feedback = '';
+
+                // Perfect match
+                if (userNorm === correctNorm) {
+                    score = 10;
+                    status = 'correct';
+                    feedback = '🎯 Perfect identification!';
+                    this.stats.perfectAnswers++;
+                    this.stats.streak++;
+                }
+                // Check for minor typos (Levenshtein distance)
+                else if (this.calculateSimilarity(userNorm, correctNorm) > 0.85) {
+                    score = 8;
+                    status = 'partial';
+                    feedback = '✨ Very close! Minor spelling variation.';
+                    this.stats.streak++;
+                }
+                // Genus only correct
+                else if (this.mode === 'species' || this.mode === 'variety') {
+                    const userGenus = userAnswer.split(' ')[0];
+                    const correctGenus = correct.latinName.split(' ')[0];
+                    
+                    if (normalized(userGenus) === normalized(correctGenus)) {
+                        const userSpecies = userAnswer.split(' ')[1];
+                        const correctSpecies = correct.latinName.split(' ')[1];
+                        
+                        if (userSpecies && normalized(userSpecies) === normalized(correctSpecies)) {
+                            // Species correct, but variety wrong (for variety mode)
+                            if (this.mode === 'variety' && correct.varietyName) {
+                                score = 6;
+                                status = 'partial';
+                                feedback = '🌿 Species correct, but variety identification needed.';
+                            }
+                        } else {
+                            // Only genus correct
+                            score = 4;
+                            status = 'partial';
+                            feedback = '🍂 Genus correct! Work on species identification.';
+                        }
+                        this.stats.streak = 0;
+                    } else {
+                        this.stats.streak = 0;
+                    }
+                }
+
+                this.stats.totalQuestions++;
+                this.stats.totalScore += score;
+                this.stats.bestStreak = Math.max(this.stats.bestStreak, this.stats.streak);
+                this.saveStats();
+
+                return { score, status, feedback, correctAnswer };
+            }
+
+            calculateSimilarity(str1, str2) {
+                const longer = str1.length > str2.length ? str1 : str2;
+                const shorter = str1.length > str2.length ? str2 : str1;
+                if (longer.length === 0) return 1.0;
+                return (longer.length - this.levenshteinDistance(longer, shorter)) / longer.length;
+            }
+
+            levenshteinDistance(str1, str2) {
+                const matrix = [];
+                for (let i = 0; i <= str2.length; i++) {
+                    matrix[i] = [i];
+                }
+                for (let j = 0; j <= str1.length; j++) {
+                    matrix[0][j] = j;
+                }
+                for (let i = 1; i <= str2.length; i++) {
+                    for (let j = 1; j <= str1.length; j++) {
+                        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
+                }
+                return matrix[str2.length][str1.length];
+            }
+
+            loadStats() {
+                const saved = localStorage.getItem('treeTrainerStats');
+                if (saved) {
+                    this.stats = JSON.parse(saved);
+                }
+            }
+
+            saveStats() {
+                localStorage.setItem('treeTrainerStats', JSON.stringify(this.stats));
+            }
+
+            resetStats() {
+                if (confirm('Are you sure you want to reset all progress?')) {
+                    this.stats = {
+                        totalQuestions: 0,
+                        totalScore: 0,
+                        perfectAnswers: 0,
+                        streak: 0,
+                        bestStreak: 0
+                    };
+                    this.saveStats();
+                    this.render();
+                }
+            }
+
+            renderControls() {
+                const groups = [...new Set(this.trees.map(t => t.speciesGroup))].sort();
+                
+                return `
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Game Mode</label>
+                            <div class="mode-toggle">
+                                <button class="mode-btn ${this.mode === 'species' ? 'active' : ''}" 
+                                        onclick="trainer.setMode('species')">
+                                    Species Level
+                                </button>
+                                <button class="mode-btn ${this.mode === 'variety' ? 'active' : ''}" 
+                                        onclick="trainer.setMode('variety')">
+                                    Variety Level
+                                </button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Season Filter</label>
+                            <select id="seasonFilter" onchange="trainer.setFilter('season', this.value)">
+                                <option value="all">All Seasons</option>
+                                <option value="winter">Winter Only</option>
+                                <option value="summer">Summer Only</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Tree Group</label>
+                            <select id="groupFilter" onchange="trainer.setFilter('group', this.value)">
+                                <option value="all">All Groups</option>
+                                ${groups.map(g => `<option value="${g}">${g}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Life Stage</label>
+                            <select id="lifeStageFilter" onchange="trainer.setFilter('lifeStage', this.value)">
+                                <option value="all">All Stages</option>
+                                <option value="juvenile">Juvenile</option>
+                                <option value="mature">Mature</option>
+                                <option value="veteran">Veteran</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }
+
+            setMode(mode) {
+                this.mode = mode;
+                this.render();
+            }
+
+            setFilter(type, value) {
+                this.filters[type] = value;
+                this.startNewQuestion();
+            }
+
+            renderStats() {
+                const avgScore = this.stats.totalQuestions > 0 ? 
+                    (this.stats.totalScore / this.stats.totalQuestions).toFixed(1) : 0;
+                const accuracy = this.stats.totalQuestions > 0 ? 
+                    ((this.stats.totalScore / (this.stats.totalQuestions * 10)) * 100).toFixed(0) : 0;
+
+                return `
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-value">${this.stats.totalQuestions}</span>
+                            <span class="stat-label">Questions</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">${avgScore}</span>
+                            <span class="stat-label">Avg Score</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">${accuracy}%</span>
+                            <span class="stat-label">Accuracy</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">${this.stats.streak}</span>
+                            <span class="stat-label">Streak</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">${this.stats.perfectAnswers}</span>
+                            <span class="stat-label">Perfect</span>
+                        </div>
+                    </div>
+                    <button onclick="trainer.resetStats()" style="margin-bottom: 20px;">Reset Progress</button>
+                `;
+            }
+
+            renderQuestion() {
+                const observations = this.getObservations(this.currentTree);
+                const modeText = this.mode === 'species' ? 
+                    'Type the Latin species name (Genus species)' : 
+                    'Type the full Latin name including variety (Genus species \'Variety\')';
+
+                return `
+                    <div class="question-card">
+                        <div class="question-number">Question ${this.currentQuestion}</div>
+                        <div class="observations">
+                            ${observations.map(obs => `
+                                <div class="observation">
+                                    <div class="observation-icon">${obs.icon}</div>
+                                    <div class="observation-content">
+                                        <div class="observation-label">${obs.label}</div>
+                                        <div class="observation-text">${obs.text}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="answer-section">
+                            <div class="prompt">Type the full Latin name:</div>
+                            <input type="text" id="answerInput" placeholder="e.g., Acer platanoides" 
+                                   onkeypress="if(event.key==='Enter') trainer.submitAnswer()" autofocus>
+                            <div class="hint">💡 ${modeText}</div>
+                            <button class="submit-btn" onclick="trainer.submitAnswer()">Submit Answer</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderResult(result) {
+                const tree = this.currentTree;
+                
+                return `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-status ${result.status}">${result.feedback}</div>
+                            <div class="result-score ${result.status}">${result.score}/10</div>
+                        </div>
+                        
+                        <div class="answer-comparison">
+                            <div class="answer-row">
+                                <div class="answer-label">Your Answer</div>
+                                <div class="answer-value">${result.userAnswer}</div>
+                            </div>
+                            <div class="answer-row">
+                                <div class="answer-label">Correct Answer</div>
+                                <div class="answer-value">${result.correctAnswer}</div>
+                            </div>
+                            <div class="answer-row">
+                                <div class="answer-label">Common Name</div>
+                                <div class="answer-value">${tree.commonName}${tree.varietyName ? ` - ${tree.varietyName}` : ''}</div>
+                            </div>
+                        </div>
+
+                        <div class="learning-section">
+                            <div class="learning-title">📚 Learning Notes</div>
+                            
+                            ${tree.whyThisTree ? `
+                                <div class="learning-block">
+                                    <h4>Why This Tree?</h4>
+                                    <p>${tree.whyThisTree}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${tree.keyDifferentiators ? `
+                                <div class="differentiators">
+                                    <h4>🔍 Key Differentiators</h4>
+                                    ${this.formatDifferentiators(tree.keyDifferentiators)}
+                                </div>
+                            ` : ''}
+                            
+                            ${tree.seasonalNotes ? `
+                                <div class="learning-block">
+                                    <h4>🍂 Seasonal Notes</h4>
+                                    <p>${tree.seasonalNotes}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${tree.identificationTips ? `
+                                <div class="learning-block">
+                                    <h4>💡 Identification Tips</h4>
+                                    <p>${tree.identificationTips}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <button class="next-btn" onclick="trainer.startNewQuestion()">Next Question →</button>
+                    </div>
+                `;
+            }
+
+            formatDifferentiators(text) {
+                // Split by periods and format each comparison
+                const parts = text.split(/\.\s+/);
+                let html = '';
+                
+                parts.forEach(part => {
+                    if (part.trim()) {
+                        if (part.includes('UNIQUE TO')) {
+                            html += `<div class="diff-unique">${part}.</div>`;
+                        } else {
+                            // Check if it starts with an uppercase genus name
+                            const genusMatch = part.match(/^([A-Z\s]+):/);
+                            if (genusMatch) {
+                                const genus = genusMatch[1];
+                                const rest = part.substring(genusMatch[0].length);
+                                html += `<div class="diff-item"><span class="diff-species">${genus}:</span>${rest}.</div>`;
+                            } else {
+                                html += `<div class="diff-item">${part}.</div>`;
+                            }
+                        }
+                    }
+                });
+                
+                return html;
+            }
+
+            submitAnswer() {
+                const input = document.getElementById('answerInput');
+                const userAnswer = input.value.trim();
+                
+                if (!userAnswer) {
+                    alert('Please enter an answer');
+                    return;
+                }
+
+                const result = this.checkAnswer(userAnswer);
+                result.userAnswer = userAnswer;
+                
+                this.showResult = true;
+                this.lastResult = result;
+                this.render();
+            }
+
+            render() {
+                const app = document.getElementById('app');
+                
+                if (this.showResult) {
+                    app.innerHTML = this.renderControls() + this.renderStats() + this.renderResult(this.lastResult);
+                    this.showResult = false;
+                } else {
+                    app.innerHTML = this.renderControls() + this.renderStats() + this.renderQuestion();
+                }
+            }
+
+            showError(message) {
+                const app = document.getElementById('app');
+                app.innerHTML = `<div class="error">${message}</div>`;
+            }
+        }
+
+        // Initialize trainer
+        let trainer;
+        document.addEventListener('DOMContentLoaded', () => {
+            trainer = new TreeTrainer();
+        });
+    </script>
+</body>
+</html>
